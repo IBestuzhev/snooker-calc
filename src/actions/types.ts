@@ -1,0 +1,7 @@
+export const ACTION_SET_NAME = "ACTION_SET_NAME";
+export const ACTION_POT = "ACTION_POT";
+export const ACTION_FAUL = "ACTION_FAUL";
+export const ACTION_FREEBALL = "ACTION_FREEBALL";
+export const ACTION_UNDO = "ACTION_UNDO"
+export const ACTION_FINAL_MISS = "ACTION_FINAL_MISS"
+export const ACTION_SET_START = "ACTION_SET_START"

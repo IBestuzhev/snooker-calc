@@ -1,0 +1,18 @@
+body {
+    font-family: "Roboto", sans-serif;
+}
+.potter {
+    color: silver;
+}
+
+@media (max-width: 600px) {
+    .flex-order-btn-left {
+        order: 2;
+    }
+    .flex-order-btn-right {
+        order: 3;
+    }
+    .flex-order-radio {
+        order: 1;
+    }
+}
