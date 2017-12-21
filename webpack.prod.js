@@ -25,7 +25,7 @@ const config = merge.smart(
             }),
             new CleanWebpackPlugin(['dist']),
             new webpack.HashedModuleIdsPlugin(),
-            CopyPlugin([{
+            new CopyPlugin([{
                 from: "static/_redirects",
                 to: "."
             }]),
