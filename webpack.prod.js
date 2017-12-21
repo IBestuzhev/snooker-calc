@@ -5,6 +5,7 @@ const merge = require("webpack-merge")
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin")
 
 const extractSass = new ExtractTextPlugin({
     filename: "[name].[hash].css",
@@ -24,6 +25,10 @@ const config = merge.smart(
             }),
             new CleanWebpackPlugin(['dist']),
             new webpack.HashedModuleIdsPlugin(),
+            CopyPlugin([{
+                from: "static/_redirects",
+                to: "."
+            }]),
             extractSass
         ],
         module: {
