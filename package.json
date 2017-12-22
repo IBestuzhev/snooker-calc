@@ -12,6 +12,21 @@
     "snooker",
     "calculator"
   ],
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "setupTestFrameworkScriptFile": "./node_modules/jest-enzyme/lib/index.js",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  },
   "author": "IBestuzhev",
   "license": "ISC",
   "dependencies": {
@@ -27,6 +42,7 @@
     "redux": "^3.7.2"
   },
   "devDependencies": {
+    "@types/jest": "^21.1.9",
     "@types/lodash": "^4.14.91",
     "@types/node": "^8.5.1",
     "@types/prop-types": "^15.5.2",
@@ -39,12 +55,17 @@
     "clean-webpack-plugin": "^0.1.17",
     "copy-webpack-plugin": "^4.3.0",
     "css-loader": "^0.28.7",
+    "enzyme": "^3.2.0",
+    "enzyme-adapter-react-16": "^1.1.1",
     "extract-text-webpack-plugin": "^3.0.2",
     "html-webpack-plugin": "^2.30.1",
+    "jest": "^22.0.4",
+    "jest-enzyme": "^4.0.1",
     "node-sass": "^4.7.2",
     "sass-loader": "^6.0.6",
     "source-map-loader": "^0.2.3",
     "style-loader": "^0.19.1",
+    "ts-jest": "^22.0.0",
     "typescript": "^2.6.2",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.9.7",
