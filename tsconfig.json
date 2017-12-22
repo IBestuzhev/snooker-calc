@@ -9,7 +9,8 @@
         "jsx": "react",
         "types": [
             "webpack-env",
-            "node"
+            "node",
+            "jest"
         ]
     },
     "include": [

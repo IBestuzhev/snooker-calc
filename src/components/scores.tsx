@@ -148,14 +148,14 @@ const BallStyles = {
 }
 
 // React.SFC<{pots: StatePot[], classes: any}>
-const PotsList = withStyles(BallStyles)<{pots: StatePot[], align?: "right"}>((props) => {
+export const PotsList = withStyles(BallStyles)<{pots: StatePot[], align?: "right"}>((props) => {
     let stats = _.chain(props.pots)
         .filter(i => i.score > 0 && !i.isFaul && !i.isFreeball)
         .countBy(i => i.score)
         .toPairs()
         .sortBy(e => e[0])
         .value();
-    console.log(props.classes)
+    // console.log(props.classes)
     return (
         <div>
         {stats.map(([score, count], i) => (
