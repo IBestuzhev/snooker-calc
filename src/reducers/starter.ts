@@ -1,12 +1,14 @@
 import { StarterAction } from "../actions/starter";
 import { ACTION_SET_START } from "../actions/types";
 import { createReducer } from "./utils";
+import { StateGlobal } from "./index";
+import { PlayerPos } from "./scores";
 
-export interface StateStarter {
-    left: number,
-    right: number,
-    redRemaining: number
+export type StateStarter = {
+    [K in PlayerPos | "redRemaining"]: number
 }
+
+export const StarterSelector: (s: StateGlobal) => StateStarter = s => s.starter
 
 export const starterReducer = createReducer<StateStarter>(
     {

@@ -1,8 +1,11 @@
 import { createReducer } from './utils';
 import {ACTION_FAUL, ACTION_FREEBALL, ACTION_POT, ACTION_UNDO, ACTION_FINAL_MISS} from '../actions/types'
 import {PlayerAction, ScoreAction, FinalAction} from '../actions/scores'
-import { createSelector } from "reselect";
+import { createSelector, createStructuredSelector } from "reselect";
 import { StateGlobal } from "./index";
+import { PotsList } from '../components/scores.potlist';
+import { StarterSelector } from './starter';
+import { NameSelector } from './names';
 
 export type PlayerPos = "left" | "right"
 
@@ -16,11 +19,102 @@ export interface StatePot {
 export interface StateScore {
     pots: StatePot[],
 }
+
+const PotsSelector = (state: StateGlobal) => state.score.pots;
 export const getPotListSelector = () => createSelector(
-    (state: StateGlobal, player: PlayerPos) => state.score.pots,
-    (state, player) => player,
+    PotsSelector,
+    (state: StateGlobal, player: PlayerPos) => player,
     (pots, player) => pots.filter(p => p.player == player)
 )
+
+const potIsRed = (p: StatePot) => (!p.isFaul && !p.isFreeball && p.score == 1)
+
+const RedCountSelector = createSelector(
+    PotsSelector, StarterSelector,
+    (pots, starter) => {
+        let redPotted = pots.reduce((s, p) => (potIsRed(p) ? s + 1 : s), 0)
+        redPotted += (15 - starter.redRemaining)
+        return redPotted
+    }
+)
+const LastSuccessSelector = createSelector(
+    PotsSelector,
+    (pots) => pots.filter(p => !p.isFaul && !p.isFreeball).slice(-1)[0]
+)
+const HasPottedFinalSelector = createSelector(
+    PotsSelector,
+    (pots) => pots.some(p => p.score == 0)
+)
+const LastPotSelector = createSelector(
+    PotsSelector,
+    (pots) => pots.slice(-1)[0]
+)
+const CanPotFreeBallSelector = createSelector(
+    LastPotSelector,
+    (lastPot) => (lastPot && lastPot.isFaul && lastPot.score > 0) ? lastPot.player : undefined
+)
+const ShowMissBtnSelector = createSelector(
+    RedCountSelector, HasPottedFinalSelector,
+    (pottedReds, hasPottedFinal) => pottedReds >= 15 && ! hasPottedFinal
+)
+const CanPotColorSelector = createSelector(
+    RedCountSelector, LastPotSelector, LastSuccessSelector, HasPottedFinalSelector,
+    (pottedReds, lastPot, lastSuccessPot, hasPottedFinal) => {
+        let canPotColor: (p: PlayerPos, s: number) => boolean = (player, score) => {
+            if (score === 1) {
+                return pottedReds < 15
+            }
+            if (pottedReds < 15) {
+                return lastPot && lastPot.player == player && lastPot.score == 1;
+            }
+            if (hasPottedFinal) {
+                return score == (Math.max(1, lastSuccessPot.score) + 1)
+            }
+            if (lastPot && lastPot.score == 1) {
+                return lastPot.player == player
+            }
+            return true
+        }
+        return canPotColor
+    }
+)
+export const CanPotSelector = createStructuredSelector({
+    canPotColor: CanPotColorSelector,
+    canPotFreeball: CanPotFreeBallSelector,
+    showMissBtn: ShowMissBtnSelector
+})
+
+const ScoreOnTableSelector = createSelector(
+    RedCountSelector, HasPottedFinalSelector, LastSuccessSelector, 
+    (pottedReds, hasPottedFinal, lastSuccessPot) => {
+        let scoreOnTable = (15 - pottedReds) * 8 + (2 + 3 + 4 + 5 + 6 + 7)
+        if (hasPottedFinal && lastSuccessPot.score > 0) {
+            let sub = lastSuccessPot.score;
+            while (sub > 1) {
+                scoreOnTable -= sub;
+                sub--;
+            }
+        }
+        return scoreOnTable
+    }
+)
+const getPlayerScoreSelector = (player: PlayerPos) => {
+    const potSelector = getPotListSelector()
+    return createSelector(
+        (state: StateGlobal) => potSelector(state, player),
+        StarterSelector,
+        (pots, starter) => pots.reduce((s, p) => (s + p.score), 0) + starter[player]
+    )
+}
+
+export const ScoreBoardSelector = createStructuredSelector({
+    users: NameSelector, 
+    starter: StarterSelector,
+    pottedReds: RedCountSelector, 
+    scoreLeft: getPlayerScoreSelector("left"), 
+    scoreRight: getPlayerScoreSelector("right"), 
+    scoreOnTable: ScoreOnTableSelector
+})
 
 export const scoreReducer = createReducer<StateScore>(
     {

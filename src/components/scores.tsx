@@ -2,7 +2,7 @@ import {StateGlobal} from "../reducers/index"
 import * as React from "react";
 import { connect } from "react-redux";
 import { StateName } from "../reducers/names";
-import { StateScore, StatePot, PlayerPos } from "../reducers/scores";
+import { StateScore, StatePot, PlayerPos, ScoreBoardSelector } from "../reducers/scores";
 import { actionPot, ScoreAction, actionUndo, actionFaul, actionFreeball, actionFinalMiss } from "../actions/scores";
 import { StateStarter } from "../reducers/starter";
 import Grid from 'material-ui/Grid';
@@ -25,218 +25,29 @@ import Radio from "material-ui/Radio/Radio";
 import withWidth from "material-ui/utils/withWidth";
 import { WithWidthProps, isWidthDown } from 'material-ui/utils/withWidth';
 import { PotsList, BallStyles, ballColors } from "./scores.potlist";
+import { Potter } from "./scores.potter";
 
 
 interface ScoreStateProps {
     users: StateName,
     starter: StateStarter,
-    potsLeft: StatePot[],
-    potsRight: StatePot[],
     scoreLeft: number,
     scoreRight: number,
     pottedReds: number,
     scoreOnTable: number
 }
-interface ScoreCanPot {
-    canPotFreeball: PlayerPos | undefined,
-    canPotColor: (player: PlayerPos, score: number) => boolean,
-    showMissBtn: boolean
-}
-interface ScoreActionProps {
-    actionPot: typeof actionPot,
-    actionUndo: typeof actionUndo,
-    actionFaul: typeof actionFaul,
-    actionFreeball: typeof actionFreeball,
-    actionFinalMiss: typeof actionFinalMiss,
-}
-type ScoreProps = ScoreStateProps & ScoreActionProps & ScoreCanPot
-
-function mapStateToProps(state: StateGlobal): ScoreStateProps & ScoreCanPot {
-    let starter = state.starter;
-
-    let potsLeft = state.score.pots.filter((p) => p.player === 'left')
-    let potsRight = state.score.pots.filter(p => p.player == 'right')
-    // p => (!p.isFaul && !p.isFreeball && p.score == 1) ? 1 : 0
-    let pottedReds = state.score.pots.reduce((s, p) => ((!p.isFaul && !p.isFreeball && p.score == 1) ? s + 1 : s), 0)
-    let scoreLeft = potsLeft.reduce((s, p) => (s + p.score), 0);
-    let scoreRight = potsRight.reduce((s, p) => (s + p.score), 0);
-
-    pottedReds += (15 - starter.redRemaining);
-    scoreLeft += starter.left
-    scoreRight += starter.right
-
-    let scoreOnTable = (15 - pottedReds) * 8 + (2 + 3 + 4 + 5 + 6 + 7)
-    let lastPot: StatePot, lastSuccessPot: StatePot, canPotFreeball: PlayerPos;
-    let showMissBtn = false;
-    let hasPottedFinal = state.score.pots.some(p => p.score == 0)
-    showMissBtn = pottedReds >= 15 && ! hasPottedFinal;
-    
-    if (state.score.pots.length > 0) {
-        lastPot = state.score.pots.slice(-1)[0];
-        lastSuccessPot = state.score.pots.filter(p => !p.isFaul && !p.isFreeball).slice(-1)[0]
-        if (lastPot.isFaul && lastPot.score > 0) {
-            canPotFreeball = lastPot.player;
-        }
-    }
-    let canPotColor: (p: PlayerPos, s: number) => boolean = (player, score) => {
-        if (score === 1) {
-            return pottedReds < 15
-        }
-        if (pottedReds < 15) {
-            return lastPot && lastPot.player == player && lastPot.score == 1;
-        }
-        if (hasPottedFinal) {
-            return score == (Math.max(1, lastSuccessPot.score) + 1)
-        }
-        if (lastPot && lastPot.score == 1) {
-            return lastPot.player == player
-        }
-        return true
-    }
-    if (hasPottedFinal && lastSuccessPot.score > 0) {
-        let sub = lastSuccessPot.score;
-        while (sub > 1) {
-            scoreOnTable -= sub;
-            sub--;
-        }
-    }
-    return {
-        users: state.names, starter: state.starter,
-        potsLeft, potsRight, pottedReds, scoreLeft, scoreRight, scoreOnTable,
-        canPotColor, canPotFreeball, showMissBtn}
-}
-
-
-const Potter = withWidth()<ScoreActionProps & ScoreCanPot & {drawerOpener: () => void}>(withStyles(BallStyles)((props) => {
-    let freeballChecker = (player: PlayerPos) => props.canPotFreeball == player
-    let fireBoth = (player: PlayerPos, score: number) => {
-        props.actionPot(player, score)
-        if (props.showMissBtn) {
-            props.actionFinalMiss(false)
-        }
-    }
-    let {classes} = props;
-    return (
-        <div>
-            <h3>Scoring</h3>
-            {[1, 2, 3, 4, 5, 6, 7].map(score => (
-                <Grid container key={`score-${score}`} spacing={0}>
-                {/* <p key={`score-${score}`}> */}
-                    <Grid item xs={5}>
-                    <Typography align="center">
-                    <Button 
-                        className={classes.btnBlock}
-                        dense={isWidthDown("sm", props.width)}
-                        onClick={() => fireBoth("left", score)}
-                        disabled={!props.canPotColor("left", score)}>
-                            {/* <Avatar className={`${classes.smallAvatar} ${classes["ball" + score as ballColors]} ${!props.canPotColor("left", score) ? classes.ballDisabled:""}`}>{score}</Avatar> to Left */}
-                            <Hidden smDown>
-                                to Left
-                            </Hidden>
-                            <Hidden smUp>
-                                &lt;&lt;
-                            </Hidden>
-                    </Button>
-                    </Typography>
-                    </Grid>
-                    <Grid item xs={2}>
-                        <Typography align="center">
-                        <span className={`${classes.smallAvatar} ${classes["ball" + score as ballColors]}`}>{score}</span>
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={5}>
-                    <Typography align="center">
-                    <Button 
-                        className={classes.btnBlock}
-                        dense={isWidthDown("sm", props.width)}
-                        onClick={() => fireBoth("right", score)}
-                        disabled={!props.canPotColor("right", score)}>
-                            {/* <Avatar className={`${classes.smallAvatar} ${classes["ball" + score as ballColors]} ${!props.canPotColor("right", score) ? classes.ballDisabled:""}`}>{score}</Avatar> to Right */}
-                            <Hidden smDown>
-                                to Right
-                            </Hidden>
-                            <Hidden smUp>
-                                &gt;&gt;
-                            </Hidden>
-                    </Button>
-                    </Typography>
-                    </Grid>
-                {/* </p> */}
-                </Grid>
-            ))}
-            {props.showMissBtn ? 
-            <Typography align="center" component="div">
-            <Button 
-                raised
-                color="primary"
-                hidden={!props.showMissBtn} 
-                onClick={() => props.actionFinalMiss(true)}>Begin final stage</Button>
-            </Typography>
-            : null}
-            <h3>Fauls</h3>
-            <Typography align="center" component="div">
-            <Button 
-                raised
-                color="accent"
-                onClick={() => props.drawerOpener()}>
-                Add Faul Points
-            </Button>
-            </Typography>
-            {/* {[4, 5, 6, 7].map(score => (
-                <p key={`faul-${score}`}>
-                    <button onClick={() => props.actionFaul("left", score)}>{score} to Left</button>
-                    <button onClick={() => props.actionFaul("right", score)}>{score} to Right</button>
-                </p>
-            ))} */}
-            <h3>Free ball</h3>
-            <Typography align="center">
-                <Button 
-                    onClick={() => props.actionFreeball("left")} 
-                    disabled={!freeballChecker("left")}
-                    raised
-                    color="primary" 
-                >
-                    <Hidden smDown>
-                        to Left
-                    </Hidden>
-                    <Hidden smUp>
-                        &lt;&lt;
-                    </Hidden>
-                </Button>
-                <Button 
-                    onClick={() => props.actionFreeball("right")} 
-                    disabled={!freeballChecker("right")}
-                    raised
-                    color="primary"
-                >
-                    <Hidden smDown>
-                        to Right
-                    </Hidden>
-                    <Hidden smUp>
-                        &gt;&gt;
-                    </Hidden>
-                </Button>
-            </Typography>
-            <h3>Undo</h3>
-            <Typography align="center">
-                <Button onClick={() => props.actionUndo()} raised color="accent">Undo last action</Button>
-            </Typography>
-        </div>
-    )
-}))
-
+type ScoreProps = ScoreStateProps & {actionFaul: typeof actionFaul}
 type ScoreBoardState = {
     faulDrawerOpen: boolean,
     faulPoints: string
-
 }
+
 export class ScoreBoardDesign extends React.Component<ScoreProps, ScoreBoardState> {
     state = {
         faulDrawerOpen: false,
         faulPoints: "4"
     }
     render() {
-        // console.log(this.state)
         return (
             <div>
             <Grid container>
@@ -253,9 +64,6 @@ export class ScoreBoardDesign extends React.Component<ScoreProps, ScoreBoardStat
                 </Typography>
             </Grid>
             <Grid item xs={3} sm={2}>
-                {/* {this.props.users.left} (+{this.props.starter.left}) */}
-                {/* <br/> */}
-                {/* {this.props.scoreLeft} */}
                 <PotsList player="left" />
             </Grid>
             <Grid item xs={6} sm={8}>
@@ -264,21 +72,10 @@ export class ScoreBoardDesign extends React.Component<ScoreProps, ScoreBoardStat
                 {15 - this.props.pottedReds} Reds remaining)
                 ({this.props.starter.redRemaining} reds at the start)
                 <Potter 
-                    canPotColor={this.props.canPotColor}
-                    canPotFreeball={this.props.canPotFreeball}
-                    showMissBtn={this.props.showMissBtn}
-                    actionPot={this.props.actionPot} 
-                    actionUndo={this.props.actionUndo} 
-                    actionFaul={this.props.actionFaul}
-                    actionFreeball={this.props.actionFreeball}
-                    actionFinalMiss={this.props.actionFinalMiss}
                     drawerOpener={() => this.setState({faulDrawerOpen: true})}
                     />
             </Grid>
             <Grid item xs={3} sm={2}>
-                {/* {this.props.users.right} (+{this.props.starter.right}) */}
-                {/* <br/> */}
-                {/* {this.props.scoreRight} */}
                 <PotsList player="right" />
             </Grid>
             </Grid>
@@ -327,6 +124,6 @@ export class ScoreBoardDesign extends React.Component<ScoreProps, ScoreBoardStat
 }
 
 export const ScoreBoard = connect(
-    mapStateToProps,
-    {actionPot, actionUndo, actionFaul, actionFreeball, actionFinalMiss}
+    ScoreBoardSelector,
+    {actionFaul}
 )(ScoreBoardDesign)
