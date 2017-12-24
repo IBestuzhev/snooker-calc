@@ -16,7 +16,8 @@ const config = merge.smart(
     common,
     {
         output: {
-            filename: "[name].[chunkhash].bundle.js"
+            filename: "[name].[chunkhash].bundle.js",
+            chunkFilename: "[name].[chunkhash].chunk.js"
         },
         plugins: [
             new webpack.EnvironmentPlugin({

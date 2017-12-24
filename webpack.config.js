@@ -33,6 +33,7 @@ module.exports = {
     output: {
         // filename: "[name].[hash].bundle.js",
         filename: "[name].bundle.js",
+        chunkFilename: "[name].chunk.js",
         path: __dirname + "/dist",
         publicPath: '/'
     },
@@ -77,6 +78,8 @@ module.exports = {
             // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
             // { test: /\.tsx?$/, loaders: ["react-hot-loader/webpack", "awesome-typescript-loader"] },
             { test: /\.tsx?$/, loaders: ["awesome-typescript-loader"] },
+
+            { test: /\.md$/, loaders: ["babel-loader?presets[]=env&presets[]=react", "react-markdown-loader"]},
 
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
             { enforce: "pre", test: /\.js$/, loader: "source-map-loader" }, 
