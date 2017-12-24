@@ -45,7 +45,6 @@ class NavButton2 extends React.Component<{to: string, inversed?: boolean}> {
 }
 
 const NavButton = withTheme()<{to: string, inversed?: boolean, exact?: boolean}>(props => {
-    console.log(props)
     let baseColor: "contrast" | "default" = props.inversed ? "default" : "contrast"
     return (
         <Button color={baseColor} 

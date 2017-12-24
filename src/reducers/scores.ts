@@ -21,7 +21,7 @@ export interface StateScore {
 }
 
 const PotsSelector = (state: StateGlobal) => state.score.pots;
-export const getPotListSelector = () => createSelector(
+const getPotListPlayerSelector = () => createSelector(
     PotsSelector,
     (state: StateGlobal, player: PlayerPos) => player,
     (pots, player) => pots.filter(p => p.player == player)
@@ -83,6 +83,17 @@ export const CanPotSelector = createStructuredSelector({
     canPotFreeball: CanPotFreeBallSelector,
     showMissBtn: ShowMissBtnSelector
 })
+export const getPotListSelector = () => {
+    const potSelector = getPotListPlayerSelector()
+    return createStructuredSelector({
+        pots: potSelector,
+        lastPot: createSelector(
+            LastPotSelector, 
+            (state: StateGlobal, player: PlayerPos) => player,
+            (lastPot, player) => ((lastPot && lastPot.player == player) ? lastPot : null)
+        )
+    })
+}
 
 const ScoreOnTableSelector = createSelector(
     RedCountSelector, HasPottedFinalSelector, LastSuccessSelector, 
@@ -99,7 +110,7 @@ const ScoreOnTableSelector = createSelector(
     }
 )
 const getPlayerScoreSelector = (player: PlayerPos) => {
-    const potSelector = getPotListSelector()
+    const potSelector = getPotListPlayerSelector()
     return createSelector(
         (state: StateGlobal) => potSelector(state, player),
         StarterSelector,
@@ -113,7 +124,8 @@ export const ScoreBoardSelector = createStructuredSelector({
     pottedReds: RedCountSelector, 
     scoreLeft: getPlayerScoreSelector("left"), 
     scoreRight: getPlayerScoreSelector("right"), 
-    scoreOnTable: ScoreOnTableSelector
+    scoreOnTable: ScoreOnTableSelector,
+    allPots: PotsSelector,
 })
 
 export const scoreReducer = createReducer<StateScore>(

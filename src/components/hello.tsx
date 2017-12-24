@@ -16,7 +16,7 @@ let _Hello: React.SFC<HelloProps> = (props) => (
     <h1>Hello, from {props.compiler} and {props.framework} :D !</h1>
     <WelcomeContent />
     <hr/>
-    <Bundle load={RulesContent} >{
+    <Bundle showLoader={true} load={RulesContent} >{
         (Rules: any) => (
             (Rules)
             ?

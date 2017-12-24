@@ -12,10 +12,12 @@ import { getPotListSelector } from "../reducers/scores";
 
 export type ballColors = "ball1" | "ball2" | "ball3" | "ball4" | "ball5" | "ball6" | "ball7" 
 interface PotListOwnProps {
-    player: PlayerPos
+    player: PlayerPos,
+    popupOpener: () => void
 }
 interface PotListConnectedProps {
-    pots: StatePot[]
+    pots: StatePot[],
+    lastPot: StatePot | null
 }
 
 
@@ -57,13 +59,17 @@ export const BallStyles = {
     btnBlock: {
         display: "block",
         width: "100%",
+    },
+    fullSizeChip: {
+        "min-width": "100%",
+        "justify-content": "flex-start"
     }
 }
 
 const connector = connect(
     () => {
         const selector = getPotListSelector()
-        return (s: StateGlobal, p: PotListOwnProps) => ({pots: selector(s, p.player)})
+        return (s: StateGlobal, p: PotListOwnProps) => selector(s, p.player)
     }
 )
 
@@ -74,7 +80,6 @@ export const PotsList = connector(withStyles(BallStyles)<PotListConnectedProps &
         .toPairs()
         .sortBy(e => e[0])
         .value();
-    console.log(props)
     return (
         <div>
         {stats.map(([score, count], i) => (
@@ -86,7 +91,19 @@ export const PotsList = connector(withStyles(BallStyles)<PotListConnectedProps &
                 style={{marginLeft: props.player == 'right' ? "auto": 0}}/>
             </Typography>
         ))}
-        <ul className="potter">
+        {props.lastPot && (
+            <div>
+                <hr/>
+                <p>Last:</p>
+                <Chip 
+                    classes={{avatar: props.classes[`ball${props.lastPot.score}` as ballColors]}} 
+                    label={props.lastPot.isFaul ? "Faul" : (props.lastPot.isFreeball ? "FB" : "Pot")} 
+                    avatar={<Avatar>{props.lastPot.score}</Avatar>} 
+                    style={{marginLeft: props.player == 'right' ? "auto": 0}}
+                    onClick={props.popupOpener} />
+            </div>
+        )}
+        <ul className="potter" hidden>
             {props.pots.map((pot, index) => (
                 <li key={index}>
                     {pot.score}
