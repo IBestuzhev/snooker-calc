@@ -1,6 +1,8 @@
 import { createReducer } from './utils';
 import {ACTION_FAUL, ACTION_FREEBALL, ACTION_POT, ACTION_UNDO, ACTION_FINAL_MISS} from '../actions/types'
 import {PlayerAction, ScoreAction, FinalAction} from '../actions/scores'
+import { createSelector } from "reselect";
+import { StateGlobal } from "./index";
 
 export type PlayerPos = "left" | "right"
 
@@ -14,6 +16,11 @@ export interface StatePot {
 export interface StateScore {
     pots: StatePot[],
 }
+export const getPotListSelector = () => createSelector(
+    (state: StateGlobal, player: PlayerPos) => state.score.pots,
+    (state, player) => player,
+    (pots, player) => pots.filter(p => p.player == player)
+)
 
 export const scoreReducer = createReducer<StateScore>(
     {

@@ -24,6 +24,7 @@ import Radio from "material-ui/Radio/Radio";
 
 import withWidth from "material-ui/utils/withWidth";
 import { WithWidthProps, isWidthDown } from 'material-ui/utils/withWidth';
+import { PotsList, BallStyles, ballColors } from "./scores.potlist";
 
 
 interface ScoreStateProps {
@@ -105,80 +106,6 @@ function mapStateToProps(state: StateGlobal): ScoreStateProps & ScoreCanPot {
         canPotColor, canPotFreeball, showMissBtn}
 }
 
-type ballColors = "ball1" | "ball2" | "ball3" | "ball4" | "ball5" | "ball6" | "ball7" 
-const BallStyles = {
-    ball1: {
-        backgroundColor: "red",
-    },
-    ball2: {
-        backgroundColor: "yellow",
-        color: "black!important"
-    },
-    ball3: {
-        backgroundColor: "green",
-    },
-    ball4: {
-        backgroundColor: "brown"
-    },
-    ball5: {
-        backgroundColor: "blue"
-    },
-    ball6: {
-        backgroundColor: "pink",
-        color: "black!important"
-    },
-    ball7: {
-        backgroundColor: "black"
-    },
-    ballDisabled: {
-        opacity: 0.2
-    },
-    smallAvatar: {
-        width: 20,
-        height: 20,
-        display: "inline-block",
-        borderRadius: "50%",
-        color: "white",
-        marginTop: "8px"
-    },
-    btnBlock: {
-        display: "block",
-        width: "100%",
-    }
-}
-
-// React.SFC<{pots: StatePot[], classes: any}>
-export const PotsList = withStyles(BallStyles)<{pots: StatePot[], align?: "right"}>((props) => {
-    let stats = _.chain(props.pots)
-        .filter(i => i.score > 0 && !i.isFaul && !i.isFreeball)
-        .countBy(i => i.score)
-        .toPairs()
-        .sortBy(e => e[0])
-        .value();
-    // console.log(props.classes)
-    return (
-        <div>
-        {stats.map(([score, count], i) => (
-            <Typography key={i} gutterBottom component="div">
-            <Chip 
-                classes={{avatar: props.classes[`ball${score}` as ballColors]}} 
-                label={`${count}`} 
-                avatar={<Avatar>{score}</Avatar>} 
-                style={{marginLeft: props.align == 'right' ? "auto": 0}}/>
-            </Typography>
-        ))}
-        <ul className="potter">
-            {props.pots.map((pot, index) => (
-                <li key={index}>
-                    {pot.score}
-                    {pot.isFaul ? 'FAUL' : null}
-                    {pot.isFreeball ? '(Free Ball)' : null}
-                </li>
-            ))}
-        </ul>
-        </div>
-    )
-})
 
 const Potter = withWidth()<ScoreActionProps & ScoreCanPot & {drawerOpener: () => void}>(withStyles(BallStyles)((props) => {
     let freeballChecker = (player: PlayerPos) => props.canPotFreeball == player
@@ -329,7 +256,7 @@ export class ScoreBoardDesign extends React.Component<ScoreProps, ScoreBoardStat
                 {/* {this.props.users.left} (+{this.props.starter.left}) */}
                 {/* <br/> */}
                 {/* {this.props.scoreLeft} */}
-                <PotsList pots={this.props.potsLeft} />
+                <PotsList player="left" />
             </Grid>
             <Grid item xs={6} sm={8}>
                 Scoreboards ({this.props.scoreLeft - this.props.scoreRight} difference, 
@@ -352,7 +279,7 @@ export class ScoreBoardDesign extends React.Component<ScoreProps, ScoreBoardStat
                 {/* {this.props.users.right} (+{this.props.starter.right}) */}
                 {/* <br/> */}
                 {/* {this.props.scoreRight} */}
-                <PotsList pots={this.props.potsRight} align="right" />
+                <PotsList player="right" />
             </Grid>
             </Grid>
             <Drawer open={this.state.faulDrawerOpen} anchor="bottom" onBackdropClick={e => this.setState({faulDrawerOpen: false})}>
