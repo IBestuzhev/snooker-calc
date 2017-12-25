@@ -6,17 +6,16 @@ export interface PlayerAction extends Action {
     player: PlayerPos
 }
 export interface ScoreAction extends PlayerAction {
-    score: number
-}
-export interface FinalAction extends Action {
-    isMiss: boolean
+    score: number,
+    isFinal?: boolean
 }
 
-export function actionPot(player: PlayerPos, score: number): ScoreAction {
+export function actionPot(player: PlayerPos, score: number, isFinal = false): ScoreAction {
     return {
         type: actionTypes.ACTION_POT,
         player, 
-        score
+        score,
+        isFinal
     }
 }
 
@@ -35,10 +34,9 @@ export function actionFreeball(player: PlayerPos): PlayerAction {
     }
 }
 
-export function actionFinalMiss(isMiss: boolean): FinalAction {
+export function actionFinalMiss(): Action {
     return {
         type: actionTypes.ACTION_FINAL_MISS,
-        isMiss
     }
 }
 

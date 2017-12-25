@@ -23,20 +23,19 @@ interface ScoreCanPot {
 
 type drawerOpener = {drawerOpener: () => void}
 
-const connector = connect<ScoreCanPot, ScoreActionProps>(
+const connector = connect<ScoreCanPot, ScoreActionProps, drawerOpener, ScoreActionProps & ScoreCanPot & drawerOpener>(
     CanPotSelector,
-    {actionPot, actionUndo, actionFaul, actionFreeball, actionFinalMiss}
+    {actionPot, actionUndo, actionFaul, actionFreeball, actionFinalMiss},
+    (stateProps, dispatchProps, ownProps) => {
+        const actionPotDispatch = dispatchProps.actionPot
+        const actionPotNew = (p: PlayerPos, s: number) => actionPotDispatch(p, s, stateProps.showMissBtn)
+        return {...stateProps, ...dispatchProps, ...ownProps, actionPot: actionPotNew}
+    }
 )
 
 
 export const Potter = connector<ScoreActionProps & ScoreCanPot & drawerOpener>(withWidth()(withStyles(BallStyles)((props) => {
     let freeballChecker = (player: PlayerPos) => props.canPotFreeball == player
-    let fireBoth = (player: PlayerPos, score: number) => {
-        props.actionPot(player, score)
-        if (props.showMissBtn) {
-            props.actionFinalMiss(false)
-        }
-    }
     let {classes} = props;
     return (
         <div>
@@ -49,7 +48,7 @@ export const Potter = connector<ScoreActionProps & ScoreCanPot & drawerOpener>(w
                     <Button 
                         className={classes.btnBlock}
                         dense={isWidthDown("sm", props.width)}
-                        onClick={() => fireBoth("left", score)}
+                        onClick={() => props.actionPot("left", score)}
                         disabled={!props.canPotColor("left", score)}>
                             {/* <Avatar className={`${classes.smallAvatar} ${classes["ball" + score as ballColors]} ${!props.canPotColor("left", score) ? classes.ballDisabled:""}`}>{score}</Avatar> to Left */}
                             <Hidden smDown>
@@ -71,7 +70,7 @@ export const Potter = connector<ScoreActionProps & ScoreCanPot & drawerOpener>(w
                     <Button 
                         className={classes.btnBlock}
                         dense={isWidthDown("sm", props.width)}
-                        onClick={() => fireBoth("right", score)}
+                        onClick={() => props.actionPot("right", score)}
                         disabled={!props.canPotColor("right", score)}>
                             {/* <Avatar className={`${classes.smallAvatar} ${classes["ball" + score as ballColors]} ${!props.canPotColor("right", score) ? classes.ballDisabled:""}`}>{score}</Avatar> to Right */}
                             <Hidden smDown>
@@ -92,7 +91,7 @@ export const Potter = connector<ScoreActionProps & ScoreCanPot & drawerOpener>(w
                 raised
                 color="primary"
                 hidden={!props.showMissBtn} 
-                onClick={() => props.actionFinalMiss(true)}>Begin final stage</Button>
+                onClick={() => props.actionFinalMiss()}>Begin final stage</Button>
             </Typography>
             : null}
             <h3>Fauls</h3>

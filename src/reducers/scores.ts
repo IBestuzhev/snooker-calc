@@ -1,11 +1,12 @@
 import { createReducer } from './utils';
 import {ACTION_FAUL, ACTION_FREEBALL, ACTION_POT, ACTION_UNDO, ACTION_FINAL_MISS} from '../actions/types'
-import {PlayerAction, ScoreAction, FinalAction} from '../actions/scores'
+import {PlayerAction, ScoreAction} from '../actions/scores'
 import { createSelector, createStructuredSelector } from "reselect";
 import { StateGlobal } from "./index";
 import { PotsList } from '../components/scores.potlist';
 import { StarterSelector } from './starter';
 import { NameSelector } from './names';
+import { Action } from 'redux';
 
 export type PlayerPos = "left" | "right"
 
@@ -50,8 +51,8 @@ const LastPotSelector = createSelector(
     (pots) => pots.slice(-1)[0]
 )
 const CanPotFreeBallSelector = createSelector(
-    LastPotSelector,
-    (lastPot) => (lastPot && lastPot.isFaul && lastPot.score > 0) ? lastPot.player : undefined
+    LastPotSelector, HasPottedFinalSelector,
+    (lastPot, hasPottedFinal) => (!hasPottedFinal && lastPot && lastPot.isFaul && lastPot.score > 0) ? lastPot.player : undefined
 )
 const ShowMissBtnSelector = createSelector(
     RedCountSelector, HasPottedFinalSelector,
@@ -88,9 +89,8 @@ export const getPotListSelector = () => {
     return createStructuredSelector({
         pots: potSelector,
         lastPot: createSelector(
-            LastPotSelector, 
-            (state: StateGlobal, player: PlayerPos) => player,
-            (lastPot, player) => ((lastPot && lastPot.player == player) ? lastPot : null)
+            potSelector, 
+            (lastPot) => lastPot.filter(({score}) => score > 0).slice(-1)[0] || null
         )
     })
 }
@@ -141,9 +141,8 @@ export const scoreReducer = createReducer<StateScore>(
                 isFreeball: false
             }
             let allPots = [...state.pots, newPot];
-            let pottedReds = state.pots.reduce((s, p) => ((!p.isFaul && !p.isFreeball && p.score == 1) ? s + 1 : s), 0)
             let hasPottedFinal = state.pots.some(p => p.score == 0)
-            if (pottedReds >= 15 && !hasPottedFinal && action.score > 1) {
+            if (action.isFinal && !hasPottedFinal && action.score > 1) {
                 allPots = [...allPots, {player: action.player, score:0, isFreeball: false, isFaul: false}]
             }
             return {...state, pots: allPots}
@@ -173,12 +172,12 @@ export const scoreReducer = createReducer<StateScore>(
             }
             return {...state, pots: [...state.pots, newPot]}
         },
-        [ACTION_FINAL_MISS]: (state, action: FinalAction) => {
+        [ACTION_FINAL_MISS]: (state, action: Action) => {
             if (state.pots.length == 0 || state.pots.some(p => p.score == 0)) {
                 return state
             }
             let lastPot = state.pots.slice(-1)[0];
-            return {...state, pots: [...state.pots, {player: lastPot.player, score: 0, isFaul: action.isMiss, isFreeball: false}]}
+            return {...state, pots: [...state.pots, {player: lastPot.player, score: 0, isFaul: true, isFreeball: false}]}
         },
         [ACTION_UNDO]: (state: StateScore) => {
             if (state.pots.length == 0) {

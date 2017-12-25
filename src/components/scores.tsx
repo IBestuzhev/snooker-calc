@@ -148,20 +148,24 @@ export class ScoreBoardDesign extends React.Component<ScoreProps & WithStyles<ke
                     </Tabs>
                     </AppBar>
                     <List>
-                        {this.props.allPots.filter(this.state.potFilter).map((pot, i) => (
+                        {this.props.allPots.filter(pot => pot.score > 0).filter(this.state.potFilter).map((pot, i) => (
                             <ListItem key={i}>
                                 <ListItemAvatar>
                                     <Avatar classes={{root: this.props.classes[`ball${pot.score}` as ballColors]}}>{pot.score}</Avatar>
                                 </ListItemAvatar>
                                 <ListItemText primary={
-                                    pot.player === "right" ? 
+                                    <span>
+                                    {pot.player === "right" ? 
                                     (
                                         <span>
                                             <span style={{fontSize: "1.5em"}}>&#8680;</span> {this.props.users.right}
                                         </span>
                                     ) : (
                                         <span><span style={{fontSize: "1.5em"}}>&#8678;</span> {this.props.users.left}</span>
-                                    )
+                                    )}
+                                    {pot.isFaul ? ' FAUL' : null}
+                                    {pot.isFreeball ? ' (Free Ball)' : null}
+                                    </span>
                                 } />
                             </ListItem>
                         ))}
