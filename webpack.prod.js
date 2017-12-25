@@ -26,10 +26,6 @@ const config = merge.smart(
             }),
             new CleanWebpackPlugin(['dist']),
             new webpack.HashedModuleIdsPlugin(),
-            new CopyPlugin([{
-                from: "static/_redirects",
-                to: "."
-            }]),
             extractSass
         ],
         module: {
