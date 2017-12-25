@@ -89,8 +89,15 @@ export const getPotListSelector = () => {
     return createStructuredSelector({
         pots: potSelector,
         lastPot: createSelector(
-            potSelector, 
-            (lastPot) => lastPot.filter(({score}) => score > 0).slice(-1)[0] || null
+            PotsSelector, 
+            (state: StateGlobal, player: PlayerPos) => player,
+            (pots, player) => {
+                let lastPot = pots.filter(({score}) => score > 0).slice(-1)[0]
+                if (lastPot && lastPot.player == player) {
+                    return lastPot;
+                }
+                return null
+            }
         )
     })
 }
