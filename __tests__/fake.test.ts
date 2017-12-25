@@ -8,7 +8,7 @@ describe("My Test case", () => {
     })
 
     it("Check Action", () => {
-        let action = actionFinalMiss(true)
-        expect(action).toEqual({type: ACTION_FINAL_MISS, isMiss: true})
+        let action = actionFinalMiss()
+        expect(action).toEqual({type: ACTION_FINAL_MISS})
     })
 })
