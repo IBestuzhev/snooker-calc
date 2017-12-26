@@ -62,13 +62,19 @@ declare var publicPath: string;
 const NavMenu = withStyles((theme) => ({
     iconGutter: {
         marginRight: theme.spacing.unit,
+    },
+    fwLabel: {
+        "@media (max-width: 599px)": {
+            flex: 1,
+            "text-align": "center"
+        }
     }
 }))<{inversed?: boolean}>((props) => (
     <div style={{display: "flex", flexDirection: "inherit"}}>
-        <NavButton exact to={publicPath} inversed={props.inversed}><HomeIcon className={props.classes.iconGutter} /> Intro</NavButton>
-        <NavButton to={publicPath + "names"} inversed={props.inversed}><PeopleIcon className={props.classes.iconGutter} />Names</NavButton>
-        <NavButton to={publicPath + "scores"} inversed={props.inversed}><PollIcon className={props.classes.iconGutter} />Score Board</NavButton>
-        <NavButton to={publicPath + "starter"} inversed={props.inversed}><BuildIcon className={props.classes.iconGutter} />Set Start data</NavButton>
+        <NavButton exact to={publicPath} inversed={props.inversed}><HomeIcon className={props.classes.iconGutter} /> <span className={props.classes.fwLabel}>Intro</span></NavButton>
+        <NavButton to={publicPath + "names"} inversed={props.inversed}><PeopleIcon className={props.classes.iconGutter} /><span className={props.classes.fwLabel}>Names</span></NavButton>
+        <NavButton to={publicPath + "scores"} inversed={props.inversed}><PollIcon className={props.classes.iconGutter} /><span className={props.classes.fwLabel}>Score Board</span></NavButton>
+        <NavButton to={publicPath + "starter"} inversed={props.inversed}><BuildIcon className={props.classes.iconGutter} /><span className={props.classes.fwLabel}>Set Start data</span></NavButton>
     </div>
 ))
 
