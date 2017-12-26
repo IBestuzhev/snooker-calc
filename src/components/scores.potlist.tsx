@@ -84,23 +84,27 @@ export const PotsList = connector(withStyles(BallStyles)<PotListConnectedProps &
         <div>
         {stats.map(([score, count], i) => (
             <Typography key={i} gutterBottom component="div">
+            <div style={{display: "inline-flex"}}> {/* Fix for Edge */}
             <Chip 
                 classes={{avatar: props.classes[`ball${score}` as ballColors]}} 
                 label={`${count}`} 
                 avatar={<Avatar>{score}</Avatar>} 
                 style={{marginLeft: props.player == 'right' ? "auto": 0}}/>
+            </div>
             </Typography>
         ))}
         {props.lastPot && (
             <div>
                 <hr/>
                 <p>Last:</p>
+                <div style={{display: "inline-flex"}}>
                 <Chip 
                     classes={{avatar: props.classes[`ball${props.lastPot.score}` as ballColors]}} 
                     label={props.lastPot.isFaul ? "Faul" : (props.lastPot.isFreeball ? "FB" : "Pot")} 
                     avatar={<Avatar>{props.lastPot.score}</Avatar>} 
                     style={{marginLeft: props.player == 'right' ? "auto": 0}}
                     onClick={props.popupOpener} />
+                </div>
             </div>
         )}
         <ul className="potter" hidden>
