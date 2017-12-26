@@ -34,7 +34,7 @@
 /******/
 /******/ 	// objects to store loaded and loading chunks
 /******/ 	var installedChunks = {
-/******/ 		2: 0
+/******/ 		3: 0
 /******/ 	};
 /******/
 /******/ 	// The require function
@@ -91,7 +91,7 @@
 /******/ 		if (__webpack_require__.nc) {
 /******/ 			script.setAttribute("nonce", __webpack_require__.nc);
 /******/ 		}
-/******/ 		script.src = __webpack_require__.p + "" + chunkId + "." + {"0":"2d5168e00a799c3ef3b9","1":"663f2e93730daaec3dfb"}[chunkId] + ".bundle.js";
+/******/ 		script.src = __webpack_require__.p + "" + ({"0":"rules","1":"vendor","2":"app"}[chunkId]||chunkId) + "." + {"0":"cb5e686b5ee27eb540df","1":"36ad9d740d6212835afc","2":"1b4936239f10b5849074"}[chunkId] + ".chunk.js";
 /******/ 		var timeout = setTimeout(onScriptComplete, 120000);
 /******/ 		script.onerror = script.onload = onScriptComplete;
 /******/ 		function onScriptComplete() {
@@ -141,11 +141,11 @@
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "/snooker-calc";
+/******/ 	__webpack_require__.p = "/snooker-calc/";
 /******/
 /******/ 	// on error function for async loading
 /******/ 	__webpack_require__.oe = function(err) { console.error(err); throw err; };
 /******/ })
 /************************************************************************/
 /******/ ([]);
-//# sourceMappingURL=common.43e3552f3b5c403a3fbb.bundle.js.map
+//# sourceMappingURL=common.b3ef835e530a81c6b7fa.bundle.js.map

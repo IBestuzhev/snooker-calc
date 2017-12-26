@@ -8,6 +8,8 @@ import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 import Grid from "material-ui/Grid";
 
+declare var publicPath: string;
+
 let mapStateToProps: (state: StateGlobal) => StateStarter = state => state.starter
 let connector = connect(mapStateToProps, {actionSetStart})
 
@@ -20,7 +22,7 @@ export class StarterDesign extends React.Component<StateStarter & {actionSetStar
         let left: HTMLInputElement, right: HTMLInputElement, reds: HTMLInputElement;
         let {fireRedirect} = this.state;
         if (fireRedirect) {
-            return <Redirect to="/scores" />
+            return <Redirect to={publicPath + "scores"} />
         }
         return (
             <form onSubmit={(e) => {

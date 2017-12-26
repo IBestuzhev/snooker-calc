@@ -58,16 +58,17 @@ const NavButton = withTheme()<{to: string, inversed?: boolean, exact?: boolean}>
         </Button>
     );
 })
+declare var publicPath: string;
 const NavMenu = withStyles((theme) => ({
     iconGutter: {
         marginRight: theme.spacing.unit,
     }
 }))<{inversed?: boolean}>((props) => (
     <div style={{display: "flex", flexDirection: "inherit"}}>
-        <NavButton exact to="/" inversed={props.inversed}><HomeIcon className={props.classes.iconGutter} /> Intro</NavButton>
-        <NavButton to="/names" inversed={props.inversed}><PeopleIcon className={props.classes.iconGutter} />Names</NavButton>
-        <NavButton to="/scores" inversed={props.inversed}><PollIcon className={props.classes.iconGutter} />Score Board</NavButton>
-        <NavButton to="/starter" inversed={props.inversed}><BuildIcon className={props.classes.iconGutter} />Set Start data</NavButton>
+        <NavButton exact to={publicPath} inversed={props.inversed}><HomeIcon className={props.classes.iconGutter} /> Intro</NavButton>
+        <NavButton to={publicPath + "names"} inversed={props.inversed}><PeopleIcon className={props.classes.iconGutter} />Names</NavButton>
+        <NavButton to={publicPath + "scores"} inversed={props.inversed}><PollIcon className={props.classes.iconGutter} />Score Board</NavButton>
+        <NavButton to={publicPath + "starter"} inversed={props.inversed}><BuildIcon className={props.classes.iconGutter} />Set Start data</NavButton>
     </div>
 ))
 
@@ -99,11 +100,11 @@ class extends React.Component<WithWidthProps> {
             {/* <div> */}
                 {this.props.children}
                 <Switch>
-                    <Route exact path="/" component={Hello} />
-                    <Route path="/names" component={NameForm} />
-                    <Route path="/scores" component={ScoreBoard} />
-                    <Route path="/starter" component={Starter} />
-                    <Redirect to="/" />
+                    <Route exact path={publicPath} component={Hello} />
+                    <Route path={publicPath + "names"} component={NameForm} />
+                    <Route path={publicPath + "scores"} component={ScoreBoard} />
+                    <Route path={publicPath + "starter"} component={Starter} />
+                    <Redirect to={publicPath} />
                 </Switch>
             </div>
             </MuiThemeProvider>
